@@ -1,0 +1,74 @@
+- name: Configure production servers
+  hosts: test
+  become: yes
+
+  vars_files:
+    - variables.yml
+
+  tasks:
+    - name: Install packages
+      package:
+        name: "{{ packages }}"
+        state: present
+
+    - name: Start services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop: "{{ services }}"
+
+    - name: Create groups
+      group:
+        name: "{{ item }}"
+        state: present
+
+      loop: "{{ linux_groups }}"
+
+    - name: Create users
+      user:
+        name: "{{ item.name}}"
+        group: "{{ item.group}}"
+        state: present
+
+      loop: "{{ users}}"
+
+    - name: Create directory
+      file:
+        path: "{{ item.path}}"
+        group: "{{ item.group}}"
+        state: directory
+        mode: "0750"
+      loop: "{{ directories }}"
+
+    - name: Patch all packages
+      package:
+        name: "*"
+        state: latest
+
+    - name: Copy configuration
+      copy:
+        src: nginx.conf
+        dest: /etc/nginx/nginx.conf
+      notify: Restart Nginx
+
+
+    - name: Apply Nginx changes
+      meta: flush_handlers
+
+    - name: Verify Nginx
+      command:
+        cmd: curl http://localhost
+      register: nginx_test
+
+
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
+
+
+  
+    

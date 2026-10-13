@@ -1,0 +1,35 @@
+packages:
+  - docker
+  - nginx
+    
+  
+
+services:
+- docker 
+- nginx
+  
+
+users:
+  - name: ahmed
+    group: security
+
+  - name: waleed
+    group: operations
+
+  - name: khalid
+    group: developers
+
+linux_groups :
+- operations 
+- developers 
+- security 
+
+
+directories :
+
+- path: /opt/myapp
+  group : developers
+- path: /opt/logs
+  group : operations
+- path: /opt/security
+  group : security

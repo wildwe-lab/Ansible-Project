@@ -1,0 +1,16 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# SSH keys
+*.pem
+*.key
+
+# Real Ansible inventory
+inventory.ini
+
+# Terraform variable secrets
+*.tfvars
+*.tfvars.json
