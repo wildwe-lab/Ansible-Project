@@ -2,57 +2,78 @@
 
 ## Project Overview
 
-This project demonstrates how I used Terraform and Ansible together to provision and automate Linux servers on AWS.
+This project demonstrates the use of **Terraform and Ansible together to provision and automate Linux servers on AWS**.
 
-Terraform is used to provision the AWS EC2 infrastructure, while Ansible is used to configure, patch, and manage the servers automatically.
+Terraform is used to provision the AWS infrastructure, while Ansible is used to configure, patch, and manage the servers automatically.
 
-The environment is divided into Production and Test servers to demonstrate infrastructure provisioning and configuration management across multiple environments.
+The infrastructure is divided into **Production and Test environments**, demonstrating infrastructure provisioning and configuration management across multiple servers and environments.
+
+---
 
 ## Architecture
 
+The project consists of:
+
 - AWS Cloud
-- 10 EC2 instances
+- 10 Amazon Linux EC2 instances
   - 5 Production servers
   - 5 Test servers
 - Terraform for infrastructure provisioning
-- Ansible for server configuration and automation
-- Amazon Linux
+- Ansible for configuration management and automation
 - Docker
 - Nginx
+- SSH-based server management
 
-## Terraform
+### Architecture Diagram
 
-Terraform is used to provision the AWS infrastructure, including:
+![Architecture Diagram](screenshots/architecture.png)
+
+---
+
+## Terraform Infrastructure
+
+Terraform is used to provision the AWS infrastructure required for the project.
+
+The Terraform configuration includes:
 
 - EC2 instances
-- Production and Test environments
+- 5 Production servers
+- 5 Test servers
+- Networking configuration
 - Security groups
 - SSH access configuration
-- Infrastructure outputs such as server public IP addresses
+- Infrastructure outputs for server public IP addresses
 
-## Ansible
+Terraform allows the complete lab infrastructure to be created and destroyed consistently using Infrastructure as Code.
 
-After Terraform provisions the servers, Ansible is used to configure and manage them.
+---
 
-The Ansible automation includes:
+## Ansible Automation
 
-- Managing Production and Test server groups through inventory
+After Terraform provisions the infrastructure, **Ansible is used to configure and manage the Linux servers**.
+
+The automation includes:
+
+- Managing Production and Test environments through Ansible inventory
 - Installing required packages
+- Installing Docker and Nginx
 - Starting and enabling Docker and Nginx services
 - Creating Linux users
 - Creating Linux groups
-- Creating application and operational directories
-- Managing directory permissions and ownership
+- Creating application, operations, and security directories
+- Managing directory ownership and permissions
 - Updating and patching installed packages
-- Deploying Nginx configuration
+- Deploying Nginx configuration files
 - Using handlers to restart Nginx when configuration changes
 - Verifying Nginx after configuration
-- Using variables and loops to make the playbooks reusable
+- Using variables and loops to make automation reusable
 - Demonstrating idempotent configuration management
+
+---
 
 ## Ansible Concepts Practiced
 
-This project demonstrates practical use of:
+The project demonstrates practical use of:
 
 - Inventory
 - Playbooks
@@ -60,7 +81,8 @@ This project demonstrates practical use of:
 - Loops
 - Package module
 - Service module
-- User and Group modules
+- User module
+- Group module
 - File module
 - Copy module
 - Command module
@@ -68,40 +90,209 @@ This project demonstrates practical use of:
 - Privilege escalation (`become`)
 - Idempotency
 
+---
+
 ## Project Structure
 
-    ansible-automation-project/
-    ├── Terraform/
-    │   └── Terraform configuration files
-    ├── production_practice.yml
-    ├── test_setup.yml
-    ├── variables.yml
-    ├── nginx.conf
-    └── README.md
+```text
+Ansible-Project/
+├── Terraform/
+│   ├── provider.tf
+│   ├── network.tf
+│   ├── ec2.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── .terraform.lock.hcl
+│
+├── production_practice.yml
+├── test_setup.yml
+├── variables.yml
+├── nginx.conf
+├── inventory.example.ini
+├── .gitignore
+│
+├── screenshots/
+│   ├── architecture.png
+│   ├── production-recap.png
+│   └── test-recap.png
+│
+└── README.md
+```
 
-## Workflow
+---
 
-    Terraform
-        |
-        v
-    AWS EC2 Infrastructure
-        |
-        v
-    Ansible Inventory
-        |
-        v
-    Ansible Playbooks
-        |
-        +--> Install Packages
-        +--> Configure Services
-        +--> Create Users & Groups
-        +--> Configure Permissions
-        +--> Patch Servers
-        +--> Deploy Nginx Configuration
-        |
-        v
-    Production & Test Servers
+## Automation Workflow
+
+```text
+Terraform
+    │
+    ▼
+AWS Infrastructure
+    │
+    ├── 5 Production EC2 Servers
+    │
+    └── 5 Test EC2 Servers
+    │
+    ▼
+Ansible Inventory
+    │
+    ▼
+Ansible Playbooks
+    │
+    ├── Install Packages
+    ├── Start & Enable Services
+    ├── Create Users & Groups
+    ├── Create Directories
+    ├── Configure Permissions
+    ├── Patch Linux Servers
+    ├── Deploy Nginx Configuration
+    ├── Trigger Nginx Handler
+    └── Verify Nginx
+    │
+    ▼
+Configured Production & Test Environments
+```
+
+---
+
+## Project Results
+
+The automation was successfully executed across both environments.
+
+### Production
+
+- 5 EC2 servers configured using Ansible
+- Packages installed successfully
+- Docker and Nginx configured and running
+- Users and groups created
+- Directories and permissions configured
+- Packages patched
+- Nginx configuration deployed
+- Nginx verified successfully
+- Final execution completed with `failed=0` and `unreachable=0`
+
+### Test
+
+- 5 EC2 servers configured using Ansible
+- Same configuration automatically applied to the Test environment
+- Final execution completed with `failed=0` and `unreachable=0`
+
+---
+
+## Execution Results
+
+### Production Environment
+
+![Production Ansible Result](screenshots/production-recap.png)
+
+### Test Environment
+
+![Test Ansible Result](screenshots/test-recap.png)
+
+---
+
+## How to Run
+
+### 1. Provision the Infrastructure
+
+Navigate to the Terraform directory:
+
+```bash
+cd Terraform
+```
+
+Initialize Terraform:
+
+```bash
+terraform init
+```
+
+Review the infrastructure:
+
+```bash
+terraform plan
+```
+
+Create the infrastructure:
+
+```bash
+terraform apply
+```
+
+---
+
+### 2. Configure the Ansible Inventory
+
+Use `inventory.example.ini` as a template and create a local:
+
+```text
+inventory.ini
+```
+
+Add the public IP addresses generated by Terraform under the appropriate Production and Test groups.
+
+Configure the SSH username and private key path for the EC2 instances.
+
+The real `inventory.ini` is excluded from Git using `.gitignore`.
+
+---
+
+### 3. Run Production Automation
+
+```bash
+ansible-playbook -i inventory.ini production_practice.yml
+```
+
+---
+
+### 4. Run Test Automation
+
+```bash
+ansible-playbook -i inventory.ini test_setup.yml
+```
+
+---
+
+### 5. Verify the Results
+
+Review the Ansible `PLAY RECAP` and confirm that all hosts complete successfully with:
+
+```text
+failed=0
+unreachable=0
+```
+
+---
+
+### 6. Destroy the Lab Infrastructure
+
+After testing is complete:
+
+```bash
+terraform destroy
+```
+
+This removes the AWS resources created for the lab.
+
+---
+
+## Security and Repository Practices
+
+The repository uses `.gitignore` to prevent local or sensitive runtime files from being committed, including:
+
+- Terraform state files
+- Terraform provider directories
+- SSH private keys
+- Local Ansible inventory
+- Terraform variable files that may contain sensitive values
+
+An `inventory.example.ini` file is provided instead of the working inventory.
+
+---
 
 ## Skills Demonstrated
 
-AWS | Terraform | Ansible | Linux | Docker | Nginx | Infrastructure as Code | Configuration Management | Server Automation
+**AWS | Terraform | Ansible | Linux | Docker | Nginx | Infrastructure as Code | Configuration Management | Server Automation | SSH | Git & GitHub**
+
+---
+
